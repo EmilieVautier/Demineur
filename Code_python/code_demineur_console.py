@@ -9,6 +9,14 @@ class Joueur:
 
 class Case:
     def __init__(self, x, y):
+        """
+    	Constructeur de la classe Case
+    	:param x: coordonnées en x de la case dans la grille
+    	:type x: int
+    	:param y: coordonnées en y de la case dans la grille
+    	:type y: int
+    	
+        """
         self.x = x
         self.y = y
         self.est_ouverte = False
@@ -17,14 +25,28 @@ class Case:
         self.nb_mines_voisines = 0
 
     def ouvrir_case(self):
+        """
+    	Fonction qui permet d ouvrir une case
+    	
+        """
         if not self.est_ouverte:
             self.est_ouverte = True
 
     def poser_drapeau(self):
+        """
+    	Fonction qui permet de poser un drapeau
+    	
+        """
         if not self.est_ouverte:
             self.est_marquee = True
             
     def compter_mines_voisines(self, grille):
+        """
+    	Compter les mines voisines à la case choisie
+    	:param grille: la grille qui contient la case
+    	:type grille: objet de la classe Grille
+    	
+        """
         for dx in [-1, 0, 1]:
             for dy in [-1, 0, 1]:
                 nx, ny = self.x + dx, self.y + dy
@@ -35,6 +57,12 @@ class Case:
 
 class Grille:
     def __init__(self, difficulte):
+        """
+    	Constructeur de la classe Grille
+    	:param difficulte: la difficulté du jeu (de 1 à 3) qui va définir la taille de la grille, le nombre de mine présente et le nombre de drapeau utilisable
+    	:type difficulte: int
+    	
+        """
         self.difficulte = difficulte
      
         if difficulte == 1:
@@ -55,6 +83,12 @@ class Grille:
 
         # Placer les mines de manière aléatoire.
     def placer_mines(self,nb_mines):
+        """
+    	Fonction qui va permettre de placer les mines dans la grille aléatoirement
+    	:param nb_mines: nombre de mine à placer dans la grille
+    	:type nb_mines: int
+    	
+        """
         for _ in range(self.nb_mines):
             K = 0
             while K==0:
@@ -66,6 +100,10 @@ class Grille:
                     break
                 
     def ouvrir_toutes_les_cases(self):
+        """
+    	Fonction qui va permettre d ouvrir toutes les cases losqu'on perd en cliquant sur une mine'
+    	
+        """
         for ligne in self.cases:
             for case in ligne:
                 if case.est_minee:
@@ -75,6 +113,14 @@ class Grille:
             print()
             
     def ouvrir_zone(self, x, y):
+        """
+    	Fonction qui va permettre d ouvrir une zone aléatoire autour de la première case ouverte lors de la partie au premier tour
+    	:param x: coordonnées en x de la première case ouverte par le joueur
+    	:type x: int
+        :param y: coordonnées en y de la première case ouverte par le joueur
+    	:type y: int
+    	
+        """
         directions = [(dx, dy) for dx in [-1, 0, 1] for dy in [-1, 0, 1]]
         for dx, dy in directions:
             
@@ -96,6 +142,14 @@ class Grille:
 
 class Partie:
     def __init__(self, joueur, difficulte):
+        """
+    	Constructeur de la classe Partie
+        :param joueur: joueur de la partie en cours
+    	:type joueur: objet de la classe Joueur
+        :param difficulte: difficulté choisie par le joueur
+    	:type difficulte: int
+    	
+        """ 
         self.joueur = joueur
         self.grille = Grille(difficulte)
         self.en_cours = True
@@ -107,10 +161,20 @@ class Partie:
     
     
     def score(self, debut):
+        """
+    	Fonction qui calcule le score du joueur en fonction de la durée et de la difficulté choisie par le joueur
+        :param debut: temps marquant le début de la partie du joueur
+    	:type debut: float
+    	
+        """ 
         fin = time.time()
         self.joueur.score = round((10000**self.grille.difficulte/round(fin - debut)))
     
     def afficher_grille(self):
+        """
+    	Fonction qui permet d afficher la grille dans la console
+    	
+        """ 
         for ligne in self.grille.cases:
             for case in ligne:
                 if case.est_ouverte:
@@ -122,6 +186,10 @@ class Partie:
             print()
             
     def choisir_drapeau(self):
+        """
+    	Fonction qui permet de placer un drapeau sur une case de la grille
+    	
+        """ 
         # Demander si le joueur veux poser un drapeau
         nom = self.joueur.nom
         while self.nb_tentatives > 0:
@@ -144,6 +212,16 @@ class Partie:
                 print("Répondez avec 'O' pour Oui ou 'N' pour Non.")
     
     def gagner_perdre(self,case_a_ouvrir,debut):
+        """
+    	Fonction qui détermine si le joueur à gagner ou perdu le jeu
+        :param case_a_ouvrir: case que le joueur à decidé d'ouvrir au dernier tour'
+    	:type case_a_ouvrir: objet de la classe case
+        :param debut: temps marquant le début de la partie du joueur
+    	:type debut: float
+        :return: indique si le jeu est terminé
+        turntype: boolean
+    	
+        """ 
         nom = self.joueur.nom
         # Vérifier si le joueur a gagné ou perdu.
         if case_a_ouvrir.est_minee:
@@ -153,8 +231,6 @@ class Partie:
         else:
             nb_cases_non_minees_ouvertes = sum(case.est_ouverte and not case.est_minee for ligne in self.grille.cases for case in ligne)
             if nb_cases_non_minees_ouvertes == len(self.grille.cases) * len(self.grille.cases[0]) - self.grille.nb_mines:
-                # end = time.time()
-                # self.joueur.score = round((10000**self.grille.difficulte/round(end - start)))
                 self.score(debut)
                 
                 print(f"Vous avez gagné {nom}!\nVotre score est de {self.joueur.score} :)")
@@ -162,6 +238,12 @@ class Partie:
     
     
     def choisir_case(self, premier_tour):
+        """
+    	Fonction qui permet de choisir une case de la grille et de l ouvrir
+        :param premier_tour: indique si il s agit du premier tour de la partie
+    	:type premier_tour: boolean
+    	
+        """ 
         # Demander au joueur d'entrer les coordonnées de la case à ouvrir.
         x, y = map(int, input("Entrez les coordonnées de la case à ouvrir (x y): ").split())
         self.x_choisi = x
@@ -184,7 +266,7 @@ class Partie:
         else:
             print("Cette case est déjà ouverte!")
 
-        # Si c'est le premier tour, ouvrir une zone non minée autour of the case.
+        # Si c'est le premier tour, ouvrir une zone non minée autour de la case.
         if premier_tour:
             zone_size = random.randint(1, self.grille.dimensions[0] * self.grille.dimensions[1] // 2)
             for _ in range(zone_size):
@@ -204,6 +286,10 @@ class Partie:
         return premier_tour
     
     def jouer_partie(self):
+        """
+    	Fonction qui permet de jouer une partie
+    	
+        """ 
         premier_tour = True
         while self.en_cours:
             debut = time.time()
@@ -224,9 +310,17 @@ class Partie:
 
 class Controle:
     def __init__(self):
+        """
+    	Constructeur de la classe Controle permettant de controler le lancement du jeu
+        
+        """ 
         pass
 
     def lancer_partie(self):
+        """
+    	Fonction qui permet de démarrer et jouer une partie
+    	
+        """ 
         nom_joueur = input("Entrez votre nom: ")
         joueur = Joueur(nom_joueur)
         print(f"Bienvenue {nom_joueur}!\nVeuillez choisir une difficulté :\n1 - Facile\n2 - Moyen\n3 - Difficile")
