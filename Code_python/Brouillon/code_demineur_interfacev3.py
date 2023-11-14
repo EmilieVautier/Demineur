@@ -1,8 +1,23 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Nov  8 21:41:39 2023
+
+@author: fredv
+"""
+
 import random
 import time
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QInputDialog
+import sys
 
 class Joueur:
     def __init__(self, nom):
+        """
+    	Constructeur de la classe Joueur
+    	:param nom: nom du joueur
+    	:type nom: string
+    	
+        """
         self.nom = nom
         self.score = 0
         
@@ -202,9 +217,6 @@ class Partie:
                 self.afficher_grille()
                 if case_a_marquer.est_ouverte:
                     print ("Cette case est déjà ouverte, inutile de la marquer!")
-                # else:
-                #     print("On continue!")
-                # break
             elif choix == 'N':
                 print(f"On continue {nom}!")
                 break
@@ -285,19 +297,22 @@ class Partie:
 
         return premier_tour
     
-    def jouer_partie(self):
+    def jouer_partie_console(self):
         """
     	Fonction qui permet de jouer une partie
     	
         """ 
         premier_tour = True
         while self.en_cours:
+            
             debut = time.time()
-
+            
+            
+            
             self.afficher_grille()
+            
             self.choisir_drapeau()
 
-            # Call the choisir_case method to handle case selection and actions.
             premier_tour = self.choisir_case(premier_tour)
 
             finir = self.gagner_perdre(self.grille.cases[self.x_choisi][self.y_choisi], debut)
@@ -306,17 +321,66 @@ class Partie:
 
             self.nb_tentatives += 1
      
+
+    def jouer_partie_interface(self):
+        pass
+
+from PyQt5.QtWidgets import QApplication, QGridLayout, QMainWindow, QPushButton, QGridLayout, QWidget, QLabel, QInputDialog, QVBoxLayout
+import sys
+
+class DemineurGUI(QMainWindow):
+    def __init__(self, difficulte):
+        super().__init__()
+        self.difficulte = difficulte
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
+        self.layout = QGridLayout(self.central_widget)
+        self.label = QLabel("Cliquez sur une case pour commencer la partie.")
+        self.Joueur = Joueur("Joueur")
+        self.Partie = Partie(self.Joueur,self.difficulte)
         
+        if self.difficulte == 1:
+            taille_grille = 5
+        elif self.difficulte == 2:
+            taille_grille = 10
+        elif self.difficulte == 3:
+            taille_grille = 15
+        self.buttons = [[QPushButton("?") for _ in range (taille_grille)] for _ in range (taille_grille)]
+        
+        
+        for x in range(taille_grille):
+            for y in range(taille_grille):
+                button = self.buttons[x][y]
+                button.setFixedSize(50, 50)
+
+                button.clicked.connect(lambda _,x=x,y=y: self.case_clic(x,y))
+                self.layout.addWidget(button, x, y)
+                
+                      
+        self.setWindowTitle("Démineur")
+        
+    # def create_buttons(self, rows, cols, grid_layout):
+    #     for x in range(rows):
+    #         for y in range(cols):
+    #             # button = QPushButton()
+    #             # #button.setFixedSize(40, 40)
+    #             # self.layout.addWidget(button, x + 1, y)  # Commencez à partir de la deuxième rangée
+    #             button = QPushButton(str(str(3 * x + y)))
+    #             grid_layout.addWidget(button, x, y)
+                
+                
+    def case_clic(self,x,y):
+        
+        selected_button = self.buttons[x][y]
+        selected_button.setText('pouet')
+        return x,y
+
+
 
 class Controle:
     def __init__(self):
-        """
-    	Constructeur de la classe Controle permettant de controler le lancement du jeu
-        
-        """ 
         pass
-
-    def lancer_partie(self):
+    def lancer_partie_console(self):
         """
     	Fonction qui permet de démarrer et jouer une partie
     	
@@ -328,10 +392,30 @@ class Controle:
         
         partie = Partie(joueur, difficulte)
         
-        partie.jouer_partie()
-
+        partie.jouer_partie_console()
+        
+        
+    def lancer_partie_interface(self):
+        app = QApplication(sys.argv)
+        print("Bienvenue dans le Démineur!")
+        print("Veuillez choisir une difficulté :\n1 - Facile\n2 - Moyen\n3 - Difficile")
+        difficulte, _ = QInputDialog.getInt(None, "Choisir la difficulté", "Difficulté (1-3):", 1, 1, 3, 1)
+        if 1 <= difficulte <= 3:
+            jeu = DemineurGUI(difficulte)
+            jeu.show()
+            sys.exit(app.exec_())
+            
+            
 
 if __name__ == "__main__":
     controle = Controle()
-    controle.lancer_partie()
+    controle.lancer_partie_interface()
+
+    
+
+
+
+
+
+
 
